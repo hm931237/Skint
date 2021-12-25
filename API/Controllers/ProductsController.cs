@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.DTO;
+using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
 using Core.Specifications;
@@ -19,26 +21,30 @@ namespace API.Controllers
         private readonly IGenericRepository<Product> _ProductsRepo;
         private readonly IGenericRepository<ProductType> _ProductTypeRepo;
         private readonly IGenericRepository<ProductBrand> _ProductBrandRepo;
+        private readonly IMapper _mapper;
         public ProductsController(IGenericRepository<Product> ProductsRepo
             , IGenericRepository<ProductType> ProductTypeRepo
-            , IGenericRepository<ProductBrand> ProductBrandRepo)
+            , IGenericRepository<ProductBrand> ProductBrandRepo
+            , IMapper mapper)
         {
             _ProductsRepo = ProductsRepo;
             _ProductTypeRepo = ProductTypeRepo;
             _ProductBrandRepo = ProductBrandRepo;
+            _mapper = mapper;
         }
         [HttpGet]
-        public async Task<ActionResult<List<Product>>> GetProducts()
+        public async Task<ActionResult<IReadOnlyList<ProductToReturnDto>>> GetProducts()
         {
             var spec = new ProductTypeAndBrandSpecifications();
             var Products=await _ProductsRepo.ListAsync(spec);
-            return Ok(Products);
+            return Ok(_mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(Products));
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<ProductToReturnDto>> GetProduct(int id)
         {
             var spec= new ProductTypeAndBrandSpecifications(id);
-            return await _ProductsRepo.GetEntityWithSpec(spec);
+            var product = await _ProductsRepo.GetEntityWithSpec(spec);
+            return _mapper.Map<Product, ProductToReturnDto>(product);
         }
         [HttpGet("Brands")]
         public async Task<ActionResult<List<ProductBrand>>> GetProductBrands()
