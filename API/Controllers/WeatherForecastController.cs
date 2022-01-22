@@ -9,7 +9,7 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase//48
+    public class WeatherForecastController : ControllerBase//50
     {
         private static readonly string[] Summaries = new[]
         {
